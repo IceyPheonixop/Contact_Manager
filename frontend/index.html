@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contact Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6a5af9;
+      --secondary-color: #d13e69;
+      --text-color: #e4e4e4;
+      --bg-color: #1c1c2e;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --shadow-color: rgba(0, 0, 0, 0.2);
+      
+      /* Action Button Colors */
+      --color-show: #03a9f4;  /* Light Blue */
+      --color-edit: #ffc107;  /* Amber */
+      --color-delete: #f44336; /* Red */
+
+      /* Hover Glow Colors */
+      --shadow-show: rgba(3, 169, 244, 0.5);
+      --shadow-edit: rgba(255, 193, 7, 0.5);
+      --shadow-delete: rgba(244, 67, 54, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(45deg, var(--bg-color), #2a2a4e);
+      color: var(--text-color);
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .main-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: #fff;
+        text-shadow: 0 2px 10px var(--shadow-color);
+    }
+    
+    .app-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .glass-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 4px 30px var(--shadow-color);
+        padding: 1.5rem;
+    }
+    
+    h3 {
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--glass-border);
+        color: #fff;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: rgba(0,0,0,0.3);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .controls {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    button {
+      flex-grow: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    button svg {
+        width: 16px;
+        height: 16px;
+        fill: #fff;
+    }
+
+    #saveBtn { background: var(--primary-color); }
+    #saveBtn:hover { background: #5a48e3; transform: translateY(-2px); }
+    
+    #clearBtn { background: var(--secondary-color); }
+    #clearBtn:hover { background: #c12e59; transform: translateY(-2px); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    tbody tr {
+        transition: background-color 0.3s ease;
+    }
+
+    tbody tr:hover {
+        background: var(--glass-bg);
+    }
+    
+    td {
+        font-size: 0.9rem;
+    }
+    
+    td:last-child {
+        background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,0.05) 100%);
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .actions-cell button {
+        padding: 0.5rem;
+        border-radius: 50%;
+        flex-grow: 0;
+        width: 38px;
+        height: 38px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .actions-cell button.show { background-color: var(--color-show); }
+    .actions-cell button.edit { background-color: var(--color-edit); }
+    .actions-cell button.del { background-color: var(--color-delete); }
+    
+    .actions-cell button:hover {
+        transform: scale(1.1) translateY(-2px);
+        filter: brightness(1.15);
+    }
+    
+    .actions-cell button.show:hover { box-shadow: 0 4px 15px var(--shadow-show); }
+    .actions-cell button.edit:hover { box-shadow: 0 4px 15px var(--shadow-edit); }
+    .actions-cell button.del:hover { box-shadow: 0 4px 15px var(--shadow-delete); }
+
+    .actions-cell svg { fill: #fff; }
+
+    .masked {
+      filter: blur(5px);
+      transition: filter 0.3s ease;
+    }
+    
+    tr:hover .masked {
+        filter: blur(0px);
+    }
+    
+    @media (max-width: 900px) {
+        .app-layout {
+            grid-template-columns: 1fr;
+        }
+        body {
+            padding: 1rem;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="main-title">Contact Manager</h1>
+  
+  <div class="app-layout">
+    <div class="glass-container">
+        <h3>Add / Update Contact</h3>
+        <input id="name" placeholder="Full name" />
+        <input id="phone" type="tel" placeholder="Phone (10 digits)" />
+        <input id="email" type="email" placeholder="Email" />
+        <textarea id="address" placeholder="Address"></textarea>
+        <div class="controls">
+          <button id="saveBtn"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Save</button>
+          <button id="clearBtn"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>Clear</button>
+        </div>
+    </div>
+    
+    <div class="glass-container">
+        <h3>Contact List</h3>
+        <input id="search" placeholder="Search contacts..." style="margin-bottom: 1.5rem;" />
+        <div style="overflow-x: auto;">
+            <table id="contactsTable">
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000";
+    let editingId = null;
+
+    function maskEmail(email) {
+      if (!email) return "";
+      const [user, domain] = email.split("@");
+      if (!domain) return email;
+      const maskedUser = user.length > 2 ? user[0] + '*'.repeat(user.length - 2) + user.slice(-1) : user;
+      const [domainName, tld] = domain.split(".");
+      const maskedDomain = domainName.length > 2 ? domainName[0] + '*'.repeat(domainName.length - 1) : domainName;
+      return `${maskedUser}@${maskedDomain}.${tld}`;
+    }
+
+    function maskPhone(phone) {
+      if (!phone || phone.length < 4) return "";
+      return '*'.repeat(phone.length - 4) + phone.slice(-4);
+    }
+    
+    async function fetchContacts() {
+      const q = document.getElementById("search").value.trim().toLowerCase();
+      const res = await fetch(`${API}/contacts`);
+      const data = await res.json();
+      const tbody = document.querySelector("#contactsTable tbody");
+      tbody.innerHTML = "";
+      data.filter(c => {
+        if(!q) return true;
+        return (c.name||"").toLowerCase().includes(q) ||
+               (c.phone||"").toLowerCase().includes(q) ||
+               (c.email||"").toLowerCase().includes(q);
+      }).forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.id}</td>
+          <td>${c.name || ""}</td>
+          <td class="masked" data-full="${c.phone || ""}">${maskPhone(c.phone)}</td>
+          <td class="masked" data-full="${c.email || ""}">${maskEmail(c.email)}</td>
+          <td>${c.address || ""}</td>
+          <td>
+            <div class="actions-cell">
+                <button data-id="${c.id}" class="show" title="Show/Hide Details">
+                    <svg class="icon-show" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <svg class="icon-hide" style="display:none;" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                </button>
+                <button data-id="${c.id}" class="edit" title="Edit Contact">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+                <button data-id="${c.id}" class="del" title="Delete Contact">
+                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      attachRowHandlers();
+    }
+    
+    function attachRowHandlers(){
+        document.querySelectorAll("button.show").forEach(b=>{
+            b.onclick = ()=> {
+            const tr = b.closest("tr");
+            const phoneCell = tr.querySelector("td:nth-child(3)");
+            const emailCell = tr.querySelector("td:nth-child(4)");
+            const showIcon = b.querySelector('.icon-show');
+            const hideIcon = b.querySelector('.icon-hide');
+            const isCurrentlyMasked = showIcon.style.display !== 'none';
+            phoneCell.textContent = isCurrentlyMasked ? phoneCell.dataset.full : maskPhone(phoneCell.dataset.full);
+            emailCell.textContent = isCurrentlyMasked ? emailCell.dataset.full : maskEmail(emailCell.dataset.full);
+            phoneCell.classList.toggle("masked", !isCurrentlyMasked);
+            emailCell.classList.toggle("masked", !isCurrentlyMasked);
+            showIcon.style.display = isCurrentlyMasked ? 'none' : 'block';
+            hideIcon.style.display = isCurrentlyMasked ? 'block' : 'none';
+            };
+        });
+
+        document.querySelectorAll("button.edit").forEach(b=>{
+            b.onclick = async ()=> {
+            const id = b.dataset.id;
+            const res = await fetch(`${API}/contacts/${id}`);
+            if(!res.ok) return alert("Failed to load");
+            const c = await res.json();
+            editingId = id;
+            document.getElementById("name").value = c.name || "";
+            document.getElementById("phone").value = c.phone || "";
+            document.getElementById("email").value = c.email || "";
+            document.getElementById("address").value = c.address || "";
+            const saveBtn = document.getElementById("saveBtn");
+            saveBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Update';
+            };
+        });
+        
+        document.querySelectorAll("button.del").forEach(b=>{
+            b.onclick = async ()=> {
+            if(!confirm("Delete this contact?")) return;
+            const id = b.dataset.id;
+            const res = await fetch(`${API}/contacts/${id}`, { method: "DELETE" });
+            if(res.ok) fetchContacts();
+            else alert("Failed to delete");
+            };
+        });
+    }
+
+    document.getElementById("saveBtn").onclick = async ()=>{
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        address: document.getElementById("address").value.trim(),
+      };
+      if(!payload.name){ alert("Name is required"); return; }
+      
+      // --- UPDATED: Combined phone number validation ---
+      const phoneRegex = /^\d{10}$/;
+      if (payload.phone && !phoneRegex.test(payload.phone)) {
+        alert("Phone number must be exactly 10 digits and contain only numbers.");
+        return;
+      }
+      // --- END OF CHANGE ---
+
+      if(editingId){
+        const res = await fetch(`${API}/contacts/${editingId}`, {
+          method: "PUT",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(payload)
+        });
+        if(res.ok){
+          clearForm();
+          fetchContacts();
+        } else {
+          if (res.status === 409) {
+            const errorData = await res.json();
+            alert(errorData.error);
+          } else {
+            alert("Update failed");
+          }
+        }
+      } else {
+        const res = await fetch(`${API}/contacts`, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(payload)
+        });
+        if(res.ok){
+          clearForm();
+          fetchContacts();
+        } else {
+          if (res.status === 409) {
+            const errorData = await res.json();
+            alert(errorData.error);
+          } else {
+            alert("Save failed");
+          }
+        }
+      }
+    };
+
+    document.getElementById("clearBtn").onclick = clearForm;
+    document.getElementById("search").oninput = fetchContacts;
+
+    function clearForm(){
+        editingId = null;
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("address").value = "";
+        const saveBtn = document.getElementById("saveBtn");
+        saveBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Save';
+    }
+
+    // --- ADDED: Live filtering for phone input ---
+    const phoneInput = document.getElementById("phone");
+    phoneInput.addEventListener("input", () => {
+        // Replace any character that is not a digit with an empty string
+        phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '');
+    });
+    // --- END OF CHANGE ---
+
+    // initial load
+    fetchContacts();
+  </script>
+</body>
+</html>
