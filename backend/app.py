@@ -38,6 +38,11 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+# Health check route for cloud deployment
+@app.route("/", methods=["GET"])
+def health_check():
+    return jsonify({"message": "Contact Manager API is running smoothly."}), 200
+
 @app.route("/contacts", methods=["GET"])
 def list_contacts():
     db = get_db()
@@ -51,7 +56,7 @@ def get_contact(cid):
     cursor = db.execute("SELECT * FROM contacts WHERE id = ?", (cid,))
     row = cursor.fetchone()
     if not row:
-        return jsonify({"error":"Not found"}), 404
+        return jsonify({"error": "Not found"}), 404
     return jsonify(dict(row))
 
 @app.route("/contacts", methods=["POST"])
@@ -62,12 +67,10 @@ def create_contact():
     email = data.get("email")
     address = data.get("address")
     if not name:
-        return jsonify({"error":"Name is required"}), 400
+        return jsonify({"error": "Name is required"}), 400
     
-    # --- ADDED: Integer-only validation for phone number ---
     if phone and not phone.isdigit():
         return jsonify({"error": "Phone number must only contain digits."}), 400
-    # --- END OF CHANGE ---
     
     db = get_db()
     
@@ -92,12 +95,10 @@ def update_contact(cid):
     db = get_db()
     cursor = db.execute("SELECT * FROM contacts WHERE id = ?", (cid,))
     if not cursor.fetchone():
-        return jsonify({"error":"Not found"}), 404
+        return jsonify({"error": "Not found"}), 404
 
-    # --- ADDED: Integer-only validation for phone number ---
     if phone and not phone.isdigit():
         return jsonify({"error": "Phone number must only contain digits."}), 400
-    # --- END OF CHANGE ---
 
     if phone:
         existing = db.execute(
@@ -109,19 +110,20 @@ def update_contact(cid):
     db.execute("UPDATE contacts SET name=?, phone=?, email=?, address=? WHERE id=?",
                (name, phone, email, address, cid))
     db.commit()
-    return jsonify({"status":"updated"})
+    return jsonify({"status": "updated"})
 
 @app.route("/contacts/<int:cid>", methods=["DELETE"])
 def delete_contact(cid):
     db = get_db()
     cursor = db.execute("SELECT * FROM contacts WHERE id = ?", (cid,))
     if not cursor.fetchone():
-        return jsonify({"error":"Not found"}), 404
+        return jsonify({"error": "Not found"}), 404
     db.execute("DELETE FROM contacts WHERE id = ?", (cid,))
     db.commit()
-    return jsonify({"status":"deleted"})
+    return jsonify({"status": "deleted"})
 
 if __name__ == "__main__":
     if not os.path.exists(DB_PATH):
         open(DB_PATH, "a").close()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
