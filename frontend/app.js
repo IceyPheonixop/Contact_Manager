@@ -2,7 +2,7 @@
 // Automatically uses localhost in development and your live URL in production
 const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:5000'
-    : 'https://your-flask-backend.onrender.com'; // 👈 Replace with your deployed backend URL
+    : 'https://contact-manager-10y9.onrender.com'; // 👈 Replace with your deployed backend URL
 
 let editingId = null;
 
